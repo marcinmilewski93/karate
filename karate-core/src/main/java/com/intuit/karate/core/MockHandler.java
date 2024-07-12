@@ -151,7 +151,7 @@ public class MockHandler implements ServerHandler {
     private static final String ALLOWED_METHODS = "GET, HEAD, POST, PUT, DELETE, PATCH";
 
     @Override
-    public synchronized Response handle(Request req) { // note the [synchronized]
+    public Response handle(Request req) {
         if (corsEnabled && "OPTIONS".equals(req.getMethod())) {
             Response response = new Response(200);
             response.setHeader("Allow", ALLOWED_METHODS);
@@ -170,6 +170,9 @@ public class MockHandler implements ServerHandler {
         // snapshot existing thread-local to restore
         ScenarioEngine prevEngine = ScenarioEngine.get();
         for (Map.Entry<Feature, ScenarioRuntime> entry : scenarioRuntimes.entrySet()) {
+            if (!entry.getKey().getName().startsWith(req.getPath().split("/")[1])){
+                continue;
+            }
             Feature feature = entry.getKey();
             ScenarioRuntime runtime = entry.getValue();
             // important for graal to work properly
